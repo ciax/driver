@@ -1,18 +1,20 @@
 #!/bin/bash
 [ -f "$1" ] || { echo "Usage: ${0##*/} [logfile]"; exit 1; }
-[ -f timediff.txt ] || { echo "NEED timediff.txt"; exit 1; }
-set - `date -f timediff.txt +%s`
-diff=$(( $1 - $2 ))
-echo DIFF=$diff
+file="$1"
+ts="timeshift.txt"
+[ -f $ts ] || { echo "NEED $ts"; exit 1; }
+set - `date -f $ts +%s`
+diff=$(( $2 - $1 ))
+echo "DIFF=$diff"
 
 IFS=$'\n'
 
-for line in `cat $1`; do
+for line in `cat $file`; do
     IFS=$' '
     set - $line
     time="${1:0:6} ${1:7:2}:${1:9:2}:${1:11:2}"
     shift
     body="$*"
-    crnt=`date -d "$time" +%s`
-    echo "$crnt $body"
+    new=`date -d "$time $diff second ago" +%y%m%d-%H%M%S`
+    echo "$new $body"
 done
