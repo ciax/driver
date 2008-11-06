@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+while(<>){
+    if(/^[\d]{6}-[\d]{6}/){
+	my ($head)=split(/-/); 
+	my ($file)=split("-",$ARGV);
+	$file="temp" unless($file);
+	open(HDL,">>$file-$head.log");
+	print(HDL $_);
+	close(HDL);
+    }
+}

@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+# Last update 2002/7/16
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use strict;
+use DB_mode;
+use DB_stat;
+
+do{
+    my $mode=shift;
+    my $rmod=new DB_mode($mode,"[mode|group] | mysql ciaxctl");
+    my $rst=new DB_stat($mode);
+    my $cmd="";
+    if($0=~/create/){
+	$cmd=$rst->sqlcreate;
+    }elsif($0=~/update/){
+	$cmd=$rst->sqlcreate;
+	$cmd=~ s/CREATE/UPDATE/g;
+    }elsif($0=~/drop/){
+	$cmd="DROP TABLE log_$_;";
+    }
+    next unless($cmd);
+    print "$cmd\n";
+}while(@ARGV>0);

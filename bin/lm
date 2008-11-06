@@ -1,0 +1,10 @@
+#!/usr/bin/expect
+set timeout 10
+regsub ^.*/ $argv0 "" host
+spawn -noecho ssh -X -l moircs $host $argv
+expect {
+       "(yes/no)?" { send "yes\n" ; exp_continue };
+       "word:" { send "1126Hatoya\n" ; exp_continue };
+       "$ " { interact };
+}
+

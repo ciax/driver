@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+# Last update 2003/8/11
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_mode;
+use DB_stat;
+use Getopt::Std;
+
+getopts('v');
+
+while(<>){
+    if(/^%/){
+	&prtstat($_);
+    }elsif(/^\d{6}-\d{6} %/){
+	my($date,$str)=unpack("A14A*",$_);
+	print "$date\n";
+	&prtstat($str);
+    }else{
+	print;
+    }
+}
+
+sub prtstat($str){
+    my ($str)=@_;
+    my $mode=substr($str,1,3);
+    my $rmod=new DB_mode($mode);
+    my %mpar=$rmod->getmpar;
+    my $rst=new DB_stat($mode,$mpar{caption});
+    $rst->setdef($str);
+    print $rst->css($opt_v);
+}
+1;

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+sourceports="80 5001 5002 5003"
+set 8080 5001 5002 5003
+a=""
+for s in $sourceports
+do
+  a="$a -L $1:dardanus:$s"
+  shift
+done
+cmd="ssh -gfN $a alcyone"
+if psg "$cmd"
+then
+kilgf "$cmd"
+sleep 3
+fi
+$cmd

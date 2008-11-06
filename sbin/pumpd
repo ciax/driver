@@ -1,0 +1,61 @@
+#!/bin/bash
+NOCOLOR=1
+LOGFILE=/home/ciax/var/log/pump-`date +%y%m%d`.log
+
+print(){
+   date +"%y%m%d-%H%M%S $*"
+}
+
+allemp(){
+    ATS=`dvcl ats stat:sym`
+    for i in 0 1 2; do
+        echo $ATS | grep ep$i=$1 > /dev/null || return 1
+    done
+    [ "$1" = ON ] && STR="Empty"
+    [ "$1" = OFF ] && STR="Ready"
+    print "Both Tank $STR"
+    return 0
+}
+
+apd(){
+    echo DVCL APD $1
+#   dvcl apd $1|stprt>>LOGFILE
+}
+
+alc(){
+    echo ALC SET $1
+#   dvcl alc i:$1|stprt>>LOGFILE
+}
+
+while : ; do
+  if allemp ON ; then
+    print "Waiting for reset alarm"
+    while : ; do
+      allemp OFF &&
+      {  print "PUMPING stop";
+       apd nc3c;
+       apd spoff;
+       sleep 10;
+       alc 7.8;
+       print "Valve open";
+       apd no1o;
+       sleep 5;
+       apd nc2o;
+       break;
+      }
+      sleep 20
+    done
+  else
+    print "Waiting for Empty"
+    while : ; do
+      allemp ON &&
+      { sleep 60;
+        print "PUMPING start";
+        apd pon;
+        alc 0;
+        break;
+      }
+      sleep 20
+    done
+  fi
+done

@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+# Last update 2003/8/10
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use SYS_term;
+use DB_mode;
+use DB_stat;
+
+my $mode=shift;
+my $rmod=new DB_mode($mode," ");
+my %mpar=$rmod->getmpar;
+my $rst=new DB_stat($mode,$mpar{caption});
+print("CIAX Log Viewer\n");
+$|=1;
+my $rprt=new SYS_stdio;
+my $rterm=new SYS_term;
+
+my @logl=();
+foreach(`/bin/ls -t $ENV{DRVVAR}/log/$mode\*.log`){
+    push(@logl,`tac $_`);
+}
+my $line=0;
+my $last=scalar @logl;
+my $dir=1;
+
+while(1){
+    my $input=$rterm->prompt("$line");
+    my ($cmd,$par)=split(/ +/,$input);
+    if($cmd=~ /^q|exit/){
+	last;
+    }elsif($cmd=~/^h/){
+	&help;
+	next;
+    }elsif($cmd=~/^g/){
+	$line=$par if(0 <= $par and $last => $par);
+    }elsif($cmd=~/^b/){
+	$par=2 unless($par);
+	$line-=$par;
+    }elsif($cmd=~/^s/){
+	$serch=$par;
+	$line=&serch(0);
+    }elsif($cmd=~/^n/){
+	$line=&serch($line);
+    }elsif($cmd=~/^r/){
+	$dir=-$dir;
+    }elsif($cmd=~/^l/){
+	$line=$last;
+	$dir=-1;
+    }elsif($cmd=~/^f/){
+	$line=0;
+	$dir=1;
+    }
+    &prtstat;
+    $line++ if($last>$line and $dir==1);
+    $line-- if($line>0 and $dir==-1);
+}
+ 
+sub serch($){
+    my $first=shift;
+    my $i=0;
+    print "Serching $serch\n";
+    for($i=$first;$i<=$last;$i++){
+	last if($logl[$i]=~ $serch);
+    }	
+    return $i if($i<$last);
+    print "Not found\n";
+    return $line;
+}
+    
+sub prtstat{
+    my ($date,$stat)=unpack("A14A*",$logl[$line]);
+    if($stat=~/^%/){
+	print "$date\n";
+	$rst->setdef($stat);
+	$rprt->prtlines($rst->prt);
+    }else{
+	print "$date\n";
+	print "  ".$rprt->color("$stat%3")."\n";
+    }
+}
+
+sub help{
+    my @lines=(",---------- BASIC ----------");
+    push @lines,"help,List All Cmds";
+    push @lines,"exit,End this Shell";
+    $rprt->helpout(@lines);
+    my @lines=(",---------- COMMAND ----------");
+    push @lines,"s [string],Search String";
+    push @lines,"n,Next Search";
+    push @lines,"b [num],Back [num] lines";
+    push @lines,"g [num],Go to [num] line";
+    push @lines,"r,Reverse Direction";
+    push @lines,"f,First line";
+    push @lines,"l,Last line";
+    $rprt->helpout(@lines);
+}
+1;

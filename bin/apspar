@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+# Last update 2006/6/22
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use CLI_pid;
+
+my ($opt,$opt2)=@ARGV;
+die <<EOF
+USAGE: apspar [ID(flow/temp):PAR(sp,cv,etc.)=value]
+       apspar [Current(0-12)] [Flow(0-1)]
+EOF
+if($opt=~/-h/);
+foreach ("flow","temp"){
+    $cfg{$_}=new CLI_pid($_);
+}
+if($opt=~/=/){
+    my ($name,$val)=split(/=/,$opt);
+    my ($id,$par)=split(/:/,$name);
+    $cfg{$id}->setval($par,$val) if($par,$val);
+    print $cfg{$id}->prtstat;
+    exit;
+}
+if($opt>0){
+    $cfg{"flow"}->setval("cv",$opt);
+    if($opt2>0){
+	$cfg{"flow"}->setval("sp",$opt2);
+	$cfg{"temp"}->setval("cv",$opt2);
+    }
+}
+foreach ("flow","temp"){
+    $"="\n";
+    print $cfg{$_}->prtstat;
+}

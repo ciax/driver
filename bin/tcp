@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use Getopt::Std;
+use DRV_tcp;
+
+getopts('rw');
+my $hostport=shift;
+die("Usage:tcp (-r|w) [host:port]\n") unless($hostport);
+$tcp=new DRV_tcp($hostport);
+$tcp->open;
+while(<>){
+    next if(/^#/);
+    $tcp->snd($_) unless($opt_r);
+    print $tcp->rcv."\n" unless($opt_w);
+    select(undef,undef,undef,1);
+}
+$tcp->close;

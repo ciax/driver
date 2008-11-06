@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+# Last update 2002/7/16
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use strict;
+use DB_mode;
+use DB_stat;
+
+print <<END;
+CREATE TABLE devcfg.status (
+       mode CHAR(3) references devcfg.mode,
+       id CHAR(6),
+       caption VARCHAR(50),
+       PRIMARY KEY (mode,id)
+);
+END
+
+my $rmod=new DB_mode;
+
+foreach my $mode ($rmod->getkeys){
+    next if($mode=~ /^!/);
+    next unless( -e "$ENV{HOME}/drivers/config/sdb_$mode.txt");
+    my $rst=new DB_stat($mode);
+    foreach my $id ($rst->getkeys){
+	next unless($id);
+	my $cap=$rst->getcaption($id);
+	print "INSERT INTO devcfg.status ";
+	print "SET mode='$mode',id='$id',caption='$cap';\n";
+    }
+}

@@ -1,0 +1,20 @@
+#!/bin/bash
+die(){ echo $1; exit 1; }
+[ "$1" ] || die "Usage:logarc [fileheader] (e.g. nct-05)"
+cd $HOME/var/log/ || die "No Var directory"
+arcdir="$HOME/arc-ciax/log/"
+tgzfile="$1.tgz"
+logren $1*.log || exit
+[ -e $arcdir$tgzfile ] && tar xzf $arcdir$tgzfile || exit
+logren $1*.log || exit
+logfile=$1*.log
+tar cvzf $tgzfile $logfile
+ls -al $tgzfile || exit
+if [ -e $arcdir$tgzfile ] ; then
+    ls -al $arcdir$tgzfile
+    read -p "mv $tgzfile?" repl
+    [ "$repl" = "y" ] || { rm $tgzfile ; echo "$tgzfile was removed"; }
+fi
+[ -e $tgzfile ] && { mv $tgzfile $arcdir ; echo "$tgzfile was moved to $arcdir"; }
+read -p "rm logs?" repl
+[ "$repl" = "y" ] && { rm $logfile ; die "logfiles were removed"; }

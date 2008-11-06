@@ -1,0 +1,8 @@
+#!/bin/sh
+[ -z "$1" ] && echo "USAGE: $(basename $0) [cmd] (args)" && exit 1
+IFS="" filename="$PIDFILE$*.pid"
+echo "Save PID to [$filename]" > /dev/stderr
+echo $$ > $filename
+trap "echo Interrupted" SIGINT 
+$@
+rm $filename

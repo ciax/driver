@@ -1,0 +1,14 @@
+#!/bin/sh
+COM=/home/ciax/drivers/cfg-moircs
+LOC=/home/moircs/drivers/config
+
+echo COMPARE $COM and $LOC
+for a ; do
+echo ----- $a
+if [ -d $COM/$a ]
+then
+diff --brief $COM/$a $LOC/$a
+else
+diff $COM/$1 $LOC/$a
+fi
+done

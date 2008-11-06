@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+# Last update 2003/8/10
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use DB_mode;
+use DB_stat;
+
+$,=",";
+my $mode=shift;
+my $max=shift || 100;
+my $rmod=new DB_mode($mode," ");
+my %mpar=$rmod->getmpar;
+my $rst=new DB_stat($mode,$mpar{caption});
+my @keys=$rst->getkeys;
+scalar @keys || die("No keys\n");
+print "time,";
+print @keys;
+print "\n";
+my @logl=reverse(`cat $ENV{DRVVAR}/log/$mode\*.log`);
+foreach my $n (1..$max){
+    my ($date,$stat)=unpack("A14A*",$logl[$n]);
+    if($stat=~/^%/){
+	$rst->setdef($stat);
+	my @fld=();
+	foreach (@keys){
+	    push @fld,$rst->getsym($_);
+	}
+	print "$date,";
+	print @fld;
+	print "\n";
+    }
+}
+1;

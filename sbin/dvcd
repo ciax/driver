@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+# Last update 2005/10/19
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use SVR_dev;
+
+$0=~/(\w+)d$/;
+my $mode=$1;
+if($mode=~/dvc/){
+    $mode=shift || "NONE";
+}
+$sv=new SVR_dev($mode);
+$sv->server;
+1;

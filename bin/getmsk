@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+# Last update 2002/12/17
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use SYS_stdio;
+use DB_iomask;
+
+my $rs=shift @ARGV or print("Usage: getmsk [devtype] [%num=num]\n");
+my $str=shift @ARGV;
+$str="%0=0" unless($str);
+my $sio=new SYS_stdio;
+my $rdb=new DB_iomask($rs);
+my $output=$rdb->ioset($str);
+print "OUTPUT ($str):\n";
+print "\t".$sio->visible($output)."\n";
+1;

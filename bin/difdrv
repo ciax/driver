@@ -1,0 +1,10 @@
+COM=$ENV{HOME}/drivers
+LOC=/home/moircs/drivers
+
+echo COMPARE $COM and $LOC
+if [ -d $COM/$1 ]
+then
+diff --brief $COM/$1 $LOC/$1
+else
+diff $COM/$1 $LOC/$1
+fi

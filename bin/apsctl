@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+# Last update 2006/6/21
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+# alc=LN2 control
+# alf=LN2 Flow
+# alg=GN2 Flow
+# alk=Temperture
+
+use DB_mode;
+use CLI_cmd;
+use CLI_pid;
+use MTN_log;
+use SYS_stdio;
+
+my $c=new SYS_stdio;
+my $fcfg=new CLI_pid("flow");
+my $gcfg=new CLI_pid("gas");
+my $tcfg=new CLI_pid("temp");
+my $log=new MTN_log("aps");
+
+foreach my $a ("alc","alf","alk","alg"){
+    my $rmod=new DB_mode($a);
+    $r{$a}=new CLI_cmd($rmod->getmpar);
+}
+
+$SIG{INT}=\&stop;
+&hl("######## APS control start! ########%C");
+&hl("TEST MODE%1") if($ENV{TEST});
+&hl($fcfg->prtstat);
+&hl($tcfg->prtstat);
+
+while(1){
+    my $liq=$fcfg->getstat(&getstat("alf"));
+    my $temp=$tcfg->getstat(&getstat("alk"));
+    my $gas=$gcfg->getstat(&getstat("alg"));
+    if("$liq$gas$temp" =~ /\*+/){
+	&hl("Fatal : Some values could not be readed ($liq/$gas/$temp)%1");
+	&stop;
+    }
+    next unless($fcfg->isupd);
+    print "\n";
+    my $cmd=$fcfg->ctlconst($liq);
+    unless($cmd){
+	&hl("Control Skip for flow.%2");
+	next;
+    }
+    next unless(&flowcheck($liq,$gas));
+    &hl($fcfg->prtstat);
+    &setcmd($cmd);
+    next unless($tcfg->isupd);
+    print "\n";
+    my $spf=$tcfg->ctlrate($temp);
+    unless($spf){
+      	&hl("Control Skip for temp.%2");
+	next;
+    }
+    &hl($tcfg->prtstat);
+    $fcfg->setpoint($spf);
+}continue{
+    sleep 5;
+    print ".";
+}
+
+sub flowcheck($$){
+    my ($ln2,$gas)=@_;
+    &hl("\tLN2/GAS=$ln2/$gas\n");
+    if($ln2*4>$gas){
+#	&hl("Control Skip : Flow is still GAS%2");
+#	return;
+    }elsif($ln2==0){
+	&hl("Warning : No LN2 flow%3");
+	return 1;
+    }elsif($gas==0){
+	&hl("Fatal : GAS flow is less than LN2%1");
+	&stop;
+    }
+    return 1;
+}
+
+sub getstat($){
+    my $mode=shift;
+    return "ch1",$r{$mode}->setcmd("stat:sym");
+}
+
+sub setcmd($){
+    my $cmd=shift;
+    return if($ENV{TEST});
+    $r{alc}->setcmd("i:$cmd");
+    &hl("\t[Current $cmd mA was set]%3");
+}
+
+sub stop(){
+    &setcmd(0);
+    &hl("Stopped!%1");
+    exit 1;
+}
+    
+sub hl(@){
+    print $c->color($_)."\n" foreach (@_);
+    $log->rec(join("\n",@_));
+}
+1;

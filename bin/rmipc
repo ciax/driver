@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for file in $HOME/var/run/*.ipc
+do
+    ipc=`cat $file`
+    [ "$ipc" ] && [ "$ipc" -ne 0 ] || continue
+    ipcrm shm $ipc
+    echo 0 > $file
+    echo ipc=$ipc is removed at $file
+done

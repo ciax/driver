@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+# Last update 2005/10/7
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+    $ENV{PROJECT}="";
+}
+use DB_mode;
+use DB_stat;
+
+my $str=<>;
+my $mode=substr($str,1,3)||die("No mode\n");
+my $rmod=new DB_mode($mode);
+my %mpar=$rmod->getmpar;
+my $rst=new DB_stat($mode,$mpar{caption});
+$rst->setdef($str);
+my $rsm=new DB_shared("db_resume.txt");
+my @cmds=();
+foreach ($rst->getkeys){
+    my $cmd=$rsm->getdb("cmd","$mode:$_");
+    next unless $cmd;
+    my $pls=$rst->getraw($_);
+    $pls=~ tr/[_ ]//d;
+    push @cmds,"$cmd$pls" if($pls ne "");
+}
+die "No Pulse setting\n" unless(scalar @cmds);
+foreach (@cmds){
+    print "$_\n"
+}
+1;

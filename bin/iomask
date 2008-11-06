@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+# Last update 2004/8/4
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_iomask;
+
+my $rdb=new DB_iomask(shift,"iomask [devname]");
+print $rdb->convert(<STDIN>);
+print STDERR "\n";
+1;

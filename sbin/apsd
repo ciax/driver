@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+# Last update 2006/6/21
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+# alc=LN2 control
+# alf=LN2 Flow
+# alg=GN2 Flow
+# alk=Temperture
+
+use DB_mode;
+use CLI_cmd;
+use CLI_pid;
+use MTN_log;
+use SYS_stdio;
+use SVR_shared;
+
+my $c=new SYS_stdio;
+my $fcfg=new CLI_pid("flow");
+my $log=new MTN_log("aps");
+my $svr=new SVR_shared;
+$svr->cexit if($svr->cfork);
+
+foreach my $a ("alc","alg"){
+    my $rmod=new DB_mode($a);
+    $r{$a}=new CLI_cmd($rmod->getmpar);
+}
+
+&hl("######## APS control start! ########%C");
+&hl("TEST MODE%1") if($ENV{TEST});
+&hl($fcfg->prtstat);
+
+while(1){
+    my $flow=$fcfg->getstat(&getstat("alg"));
+    unless($fcfg->ovchk){
+	&stop;
+	next;
+    }
+    if("$flow" =~ /\*+/){
+	&hl("Fatal : Some values could not be readed ($flow)%1");
+	&stop;
+	next;
+    }
+    next unless($fcfg->isupd);
+    print "\n";
+    my $cmd=$fcfg->ctlconst($flow);
+    unless($cmd){
+	&hl("Control Skip for flow.%2");
+	next;
+    }
+    &hl($fcfg->prtstat);
+    &setcmd($cmd);
+}continue{
+    sleep 5;
+    print ".";
+}
+
+sub getstat($){
+    my $mode=shift;
+    return "ch1",$r{$mode}->setcmd("stat:sym");
+}
+
+sub setcmd($){
+    my $cmd=shift;
+    return if($ENV{TEST});
+    $r{alc}->setcmd("i:$cmd");
+    &hl("\t[Current $cmd mA was set]%3");
+}
+
+sub stop(){
+    &setcmd(0);
+    $fcfg->svoff;
+    &hl("Stopped!%1");
+}
+    
+sub hl(@){
+    print $c->color($_)."\n" foreach (@_);
+    $log->rec(join("\n",@_));
+}
+1;

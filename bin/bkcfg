@@ -1,0 +1,7 @@
+src=/home/moircs/drivers/config
+dist=/home/ciax/drivers/cfg-moircs
+if [ "$1" = -r ] ; then
+tmp=$src;src=$dist;dist=$tmp
+fi
+[ -e $src ] || exit
+rsync -auvP $src/*.txt $dist/

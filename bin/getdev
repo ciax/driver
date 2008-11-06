@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+# Last update 2002/12/17
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_device;
+
+my $rdb=new DB_device(shift,"[dev]");
+my $str=shift @ARGV;
+$str="SAMPLE" unless($str);
+my $sio=new SYS_stdio;
+my $sttypar=$rdb->getsttypar;
+print "STTY PARA:\n\t$sttypar\n" if($sttypar);
+my $lantropar=join(" ",$rdb->getlantropars);
+print "LANTRO PARA:\n\t$lantropar\n" if($lantropar);
+my $string1=$rdb->getcompstr($str);
+print "CHKSTR ($str):\n";
+print "\t".$sio->visible($string1)."\n";
+my $string2=$rdb->convert($str);
+print "STATUS ($str):\n";
+print "\t".$sio->visible($string2)."\n";
+1;

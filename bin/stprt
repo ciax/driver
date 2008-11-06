@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+# Last update 2003/8/11
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+    $ENV{PROJECT}="";
+}
+
+getopts('vcsrj');
+if(-t STDIN and @ARGV == 0){
+    print <<EOF; 
+Usage : stprt (-vcsrjh) (file)
+    "" : Visual format
+    -v : Visual format (Verbose mode)
+    -c : CSV format
+    -s : INI file format (Symbol value)
+    -r : INI file format (Raw value)
+    -j : JSON format
+    setenv NOCOLOR 1 makes outputs monochrome
+EOF
+exit 1;
+}
+
+use DB_mode;
+use DB_stat;
+use Getopt::Std;
+my $rprt=new SYS_stdio;
+
+my $i=0;
+while(<>){
+    if(/^[ \t]*%/){
+	s/^[ \t]*//;
+	&prtstat($_);
+    }elsif(/^\d{6}-\d{6} %/){
+	my($date,$str)=unpack("A14A*",$_);
+	&prtstat($str,$date);
+    }else{
+	print if(!$opt_c);
+    }
+}
+
+sub prtstat($$){
+    my ($str,$date)=@_;
+    my $mode=substr($str,1,3);
+    my $rmod=new DB_mode($mode);
+    my %mpar=$rmod->getmpar;
+    my $rst=new DB_stat($mode,$mpar{caption});
+    $rst->setdef($str);
+    $rst->setdate($date) if($date);
+    if($opt_s){
+	$rprt->prtlines($rst->sym);
+    }elsif($opt_j){
+	$rprt->prtlines($rst->json);
+    }elsif($opt_r){
+	$rprt->prtlines($rst->raw);
+    }elsif($opt_c){
+	my @data=();
+	foreach($rst->sym){
+	    my($key,$val)=split("=");
+	    print "$key," if($i==0);
+	    push @data,$val;
+	}
+	if($i==0){
+	    $i=1;
+	    print "\n";
+	}
+	print join(",",@data)."\n";
+    }else{
+	$rprt->prtlines($rst->prt($opt_v));
+    }
+}
+1;

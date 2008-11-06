@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+my $NG=&color("NG",1);
+while(<>){
+    s/NG/$NG/g;
+    print;
+}
+
+### Coloring Subroutine ###
+# 1=RED,2=GREEN,4=BLUE,9=LIGHT RED,A=LIGHT GREEN,C=LIGHT BLUE
+sub color($$){
+    my ($str,$color)=@_;
+    return $str if($ENV{NOCOLOR});
+    $color=1 unless($color);
+    my $num=hex($color);
+    my $msb=($num & 8)?0:1;
+    my $col=$num & 7;
+    return "\033[$msb;3${col}m$str\033[0m";
+}
+1;

@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+# Last update 2003/7/9
+BEGIN{
+    $ENV{DRVDIR}="/home/ciax/drivers";
+    $ENV{DRVVAR}="/export/scr/var-ciax";
+    push @INC,"$ENV{DRVDIR}/cgi"; 
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use CFG_cgi;
+
+my $rate=4;
+my $cgi=new CFG_cgi;
+my %par=$cgi->getpar;
+my $port=$par{port};
+my $size=$par{size};
+my $no=$par{no};
+my $height=120;
+my $width=($size eq "qw")?176:160;
+$height*=$rate;
+$width*=$rate;
+my $resol=$width."x".$height;
+
+print <<END;
+Content-type: text/html
+
+
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<TITLE>Axis Network Camera</TITLE>
+<NOSCRIPT>
+<B>Your browser has JavaScript turned off.</B><BR>
+For the user interface to work effectively, you must enable JavaScript in your browser and reload/refresh this page.<BR>
+</NOSCRIPT>
+</HEAD>
+<CENTER>
+<SCRIPT LANGUAGE="JavaScript">
+<!--//hide script
+  if ((navigator.appName == "Microsoft Internet Explorer")&&(navigator.platform != "MacPPC")&&(navigator.platform != "Mac68k")) {
+      document.write("<OBJECT ID=\\"AxisCamControl\\" CLASSID=\\"CLSID:917623D1-D8E5-11D2-BE8B-00104B06BDE3\\" WIDTH=\\"$width\\" HEIGHT=\\"$height\\" CODEBASE=\\"http://ciax:$port/activex/AxisCamControl.cab#Version=1,0,2,15\\">");
+      document.write("<PARAM NAME=DisplaySoundPanel VALUE=0>");
+      document.write("<PARAM NAME=URL VALUE=\\"http://ciax:$port/axis-cgi/mjpg/video.cgi?camera=$no&resolution=$resol\\">");
+      document.write("</OBJECT>");
+	
+  } else {
+    theDate = new Date();
+        var output = "<img SRC=\\"http://ciax:$port/axis-cgi/mjpg/video.cgi?camera=$no&resolution=640x480&";
+    output += theDate.getTime()
+    output += "\\" ALT=\\"Press Reload if no image is displayed\\">";
+    document.write(output);
+  }
+//end hide -->
+</SCRIPT>
+</center>
+</body>
+</html>
+END
+1;

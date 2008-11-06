@@ -1,0 +1,14 @@
+#!/bin/bash
+# Status collection to CIAX
+DIR="/export/scr/var-ciax/status"
+DVC="dxo dzo dxi dzi dts"
+#DVC="alc alk alp ats ap1 ap2"
+
+while : ; do
+    for i in $DVC ; do
+	dvcl $i stat:json > $DIR/json-$i.txt
+    done
+#    mcstemp > $DIR/json-mlk.txt
+#    mcstemp -r > $DIR/json-mlk-r.txt
+    sleep 60
+done

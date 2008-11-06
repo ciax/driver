@@ -1,0 +1,13 @@
+*Mode set
+PROJECT : project name (ciax,moircs)
+*Directory set
+DRVDIR : path for system files ($HOME/drivers) 
+DRVVER : path for variable files ($HOME/var)
+*Debug Option
+VER : Verbose flag (exe,tsc,str,fsc,io,rs,tcp,mlp,ntd,file,shm,sql,udpc,udps and all)
+*Logging Option
+NOLOG : no logging
+SQLLOG : Logging to RDB (hostname)
+LOG : Logging method (SKIP,..)
+*Console Option
+NOCOLOR : no color printing

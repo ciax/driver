@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_mode;
+use CLI_stat;
+use EXE_ilk;
+
+my $mode=shift @ARGV;
+my $cmd=shift @ARGV;
+my $rmod=new DB_mode($mode,"[mode] [cmd]");
+my $rilk=new EXE_ilk(new CLI_stat,"$mode [cmd]");
+my($code,@str)=$rilk->getdb($mode,$cmd);
+print"Interlock = [$code]\n";
+my $rprt=new SYS_stdio;
+foreach(@str){
+    print $rprt->color($_)."\n";
+}
+1;

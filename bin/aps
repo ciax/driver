@@ -1,0 +1,1 @@
+apsctl | tee -a aps.log

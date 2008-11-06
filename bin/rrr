@@ -1,0 +1,7 @@
+#!/bin/sh
+set +m
+trap "echo SIGINT-RRR;exit" SIGINT 
+trap "echo SIGHUP-RRR;exit" SIGHUP
+trap "echo SIGTERM-RRR;exit" SIGTERM
+sleep 100
+

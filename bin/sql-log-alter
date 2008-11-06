@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+# Last update 2002/7/16
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use strict;
+use DB_mode;
+use DB_stat;
+
+my $group=shift;
+my $colms=shift;
+
+do{
+    my $rmod=new DB_mode($group,"[mode] [colms]| mysql ciaxctl");
+    my $rst=new DB_stat($group);
+    my $cmd=$rst->sqlalter($colms);
+    next unless($cmd);
+    print "$cmd\n";
+}while(@ARGV>0);

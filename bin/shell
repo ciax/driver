@@ -1,0 +1,70 @@
+#!/usr/bin/perl
+# Last update 2005/11/18
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use strict;
+use SYS_term;
+use DB_mode;
+use DB_stat;
+use CLI_cmd;
+
+my %pstat=(ciax=>"ist:icr:hom");
+print("Device Control shell program\n");
+my $rmod=new DB_mode;
+my $rprt=new SYS_stdio;
+my $rterm=new SYS_term("cfg_inputrc.txt");
+my ($mode,$group,%udp,%sta)=();
+my $input=$rmod->{mode};
+die("NO such mode!\n") unless(&chkmod($input));
+system("stty intr ''");
+while(1){
+    if(&chkmod($input)){
+	$mode=$rmod->setmode($input);
+	$group=$ENV{PROJECT}||"ALL";
+	print( "Group = $group, Mode = $mode\n");
+    }elsif($udp{$mode}{rcmd}->setkey($input)){
+	my $stat=$udp{$mode}->setcmd($input);
+	$sta{$mode}->setdef($stat);
+	$rprt->prtlines($sta{$mode}->prt);
+    }elsif($input=~/^h$/){
+	&help;
+    }else{
+	print( "No such a command!\n");
+    }	
+    my $prom=$mode;
+    if($pstat{$group}){
+	my ($pmode,@psym)=split(/:/,$pstat{$group});
+	&chkmod($pmode);
+	$sta{$pmode}->setdef($udp{$pmode}->setcmd("stat"));
+	$prom=$sta{$pmode}->getsym($_).":".$prom foreach (@psym);
+	$prom=~ s/(^:|_)//g;
+    }
+    $input=$rterm->prompt($prom);
+    last if($input=~ /^q|exit/);
+    $input="stat" unless($input);
+}
+system("stty intr '^C'");
+
+sub chkmod($){
+    my $mode=shift;
+    return unless($rmod->setkey($mode));
+    return $mode if(exists $udp{$mode});
+    $mode=$rmod->setmode($mode);
+    my %mpar=$rmod->getmpar;
+    $udp{$mode}=new CLI_cmd(%mpar);
+    return $mode if(exists $sta{$mode});
+    $sta{$mode}=new DB_stat($mode,$mpar{caption});
+}    
+
+sub help{
+    my @line=("!0,---------- BASIC ----------");
+    push @line,"help,List All Cmds";
+    push @line,"exit,End this Shell";
+    $rprt->helpout(@line);
+    $rmod->setkey;
+    $udp{$mode}{rcmd}->setkey;
+}
+1;

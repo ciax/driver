@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+# Last update 2003/10/27
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use SVR_mcr;
+
+my $mode=$0;
+$mode=~ s/.*\///;
+$mode=~ s/d$//;
+my $mcr = new SVR_mcr($mode);
+$mcr->server;
+1;

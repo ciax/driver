@@ -1,0 +1,24 @@
+#!/bin/bash
+
+MODES="nct nso nsi dxo dxi det dts cci cco"
+TEMP1=temp1.txt
+TEMP2=temp2.txt
+
+pick(){
+    grep $1 $TEMP2 > /dev/null
+}
+
+set -e
+for i in $MODES ; do
+    dvcl $i stat > $TEMP1 2>&1 ||
+    { echo "No response from $i ($?)!"; continue; }
+    stprt -s $TEMP1 > $TEMP2
+    pick cme=E && echo "Comm error on $i!"
+    pick dve=E && echo "Device error on $i!"
+    if [ "$i" = "nct" ] ; then
+	! { pick blv=H || pick blv=M ;} &&
+	echo "CIAX Cart Battery level is Low! (`grep blv $TEMP2`)"
+    fi
+done
+rm $TEMP1 $TEMP2
+set +e

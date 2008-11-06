@@ -1,0 +1,125 @@
+#!/bin/bash
+NOCOLOR=1
+LOGFILE=/home/ciax/var/log/switch-`date +%y%m%d`.log
+F1=0
+F2=0
+SEL1=""
+SEL2=""
+
+print(){
+    date +"%y%m%d-%H%M%S $*" >> $LOGFILE
+}
+
+atsupd(){
+    eval `dvcl ats upd | stprt -s`
+    print " - Update"
+    if [ "$iu1" = "OFF" -a "$F1" = "1" ] ; then
+	F1=0
+	print "==== Finish Tank 1$SEL1 ===="
+    fi
+    if [ "$iu2" = "OFF" -a "$F2" = "1" ] ; then
+	F2=0
+	print "==== Finish Tank 2$SEL2 ===="
+    fi
+    if [  "$iu1" = "ON" -a "$F1" = "0" ] ; then
+	F1=1
+	print "==== Start Tank 1$SEL1 ===="
+    fi
+    if [ "$iu2" = "ON" -a "$F2" = "0" ] ; then
+	F2=1
+	print "==== Start Tank 2$SEL2 ===="
+    fi
+}
+
+isemp(){
+    if [ "$ep0" = "ON" ] ; then
+        print " - Both Tank Empty"
+    else
+        print " - Tank Volume OK"
+        return 1
+    fi
+}
+
+ispump(){
+    if [ "$nc3" = "OPEN" ] ; then
+       print " - Pumping mode"
+    else
+	print " - Cooling mode"
+	return 1
+    fi
+}
+
+ap1(){
+    print dvcl ap1 $1
+    eval `dvcl ap1 $1 | stprt -s`
+}
+
+ap2(){
+    print dvcl ap2 $1
+    eval `dvcl ap2 $1 | stprt -s`
+    if [ "$v1a" = "OPEN" ] ; then
+	SEL1="A"
+    else
+	SEL1="B"
+    fi
+    if [ "$v2a" = "OPEN" ] ; then
+	SEL2="A"
+    else
+	SEL2="B"
+    fi
+}
+
+pumpmode(){
+    print "==== Entering Pumping Mode ===="
+    sleep 60
+    print "  Pumping start"
+    ap1 pon
+}
+
+coolmode(){
+    print "==== Entering Cooling Mode ===="
+    ap1 nc3c
+    ap1 spoff
+    print "  Pumping stop"
+    sleep 10
+    ap1 no1o
+    sleep 5
+    ap1 nc2o
+}
+
+swab(){
+    if [ "$v1a" = "OPEN" ] ; then
+	print "Switch 1A->1B"
+	ap2 1b
+	SEL1="B"
+    else
+	print "Switch 1B->1A"
+	ap2 1a
+	SEL1="A"
+    fi
+    if [ "$v2a" = "OPEN" ] ; then
+	print "Switch 2A->2B"
+	ap2 2b
+	SEL2="B"
+    else
+	print "Switch 2B->2A"
+	ap2 2a
+	SEL2="A"
+    fi
+    ap2 ares
+    atsupd
+    isemp && pumpmode
+}
+
+print "#### Start ####"
+ap1 upd
+ap2 upd
+while : ; do
+    atsupd
+    if ispump ; then
+	isemp || coolmode
+    else
+	isemp && swab
+    fi
+    sleep 59
+done

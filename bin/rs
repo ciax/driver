@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+# Last update 2004/8/4
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use Getopt::Std;
+use DB_device;
+
+getopts('rw');
+my $rdb=new DB_device(shift,"rs (-r|w) [dev] [device]");
+my $device=shift || "/dev/ttyS0";
+my $sttypar="stty -F $device ".$rdb->getsttypar;
+while(<>){
+    chomp;
+    $par="icrnl onlcr" if(s/\r/\n/);
+    open(S, "+<$device") || die("Can't open $device!");
+    warn("open $device\n") if($ENV{VER}=~/rs/);
+    select(S);$|=1;select(STDOUT);
+    `$sttypar $par`;
+    warn("$sttypar $par\n") if($ENV{VER}=~/rs/);
+    unless($opts_r){
+	print (S $_);
+	warn("send $_\n") if($ENV{VER}=~/rs/);
+    }
+    unless($opts_w){
+	$res=<S>;
+	warn("recv ($res)\n") if($ENV{VER}=~/rs/);
+	print $res;
+    }
+    close(S);
+}
+1;

@@ -1,0 +1,6 @@
+USER='ciax@localhost'
+mysql -u root << EOF
+REVOKE ALL PRIVILEGES ON *.* FROM $USER;
+REVOKE GRANT OPTION ON *.* FROM $USER;
+DROP USER $USER;
+EOF

@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use MTN_ver;
+use DRV_tcp;
+
+my $host=shift;
+my @cmds=("apc","apc","4");
+
+my $tcp=new DRV_tcp("$host:23");
+$tcp->open;
+foreach (@cmds){
+    print $tcp->rcv;
+    $tcp->snd("$_\r");
+}
+$tcp->close;

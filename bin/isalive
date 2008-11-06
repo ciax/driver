@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+# Last update 2003/8/10
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_mode;
+use CLI_cmd;
+
+my @modes=(nct,nso,nsi,dxo,dxi,det,dzo,dzi,cco,cci);
+my ($mode,$cmd,$nowait)=@ARGV;
+foreach (@modes){
+    my $rmod=new DB_mode($_);
+    my $rcom=new CLI_cmd($rmod->getmpar);
+    my $stat=$rcom->setcmd("upd",1);
+    warn ("$stat\n");
+    print "Device Error on [$_]!\n" if(substr($stat,7,1) ne "_");
+    print "Communication Error on [$_]!\n" if(substr($stat,4,1) ne "_");
+}
+1;

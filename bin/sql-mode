@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+# Last update 2002/7/16
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use strict;
+use DB_mode;
+
+print <<END;
+CREATE TABLE devcfg.mode (
+    mode CHAR(3),
+    caption VARCHAR(50),
+    PRIMARY KEY (mode)
+);
+END
+  
+my $rmod=new DB_mode;
+
+
+foreach my $mode ($rmod->getkeys){
+    next if($mode=~ /^!/);
+    my $cap=$rmod->getdb('caption',$mode);
+    print "INSERT INTO devcfg.mode ";
+    print "SET mode='$mode',caption='$cap';\n";
+}

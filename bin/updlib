@@ -1,0 +1,6 @@
+dist=/home/moircs/drivers
+src=/home/ciax/drivers
+for a in bin sbin lib ; do
+echo COPY $a
+rsync -auv $src/$a/* $dist/$a/
+done

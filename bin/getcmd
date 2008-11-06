@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+# Last update 2002/7/16
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use Getopt::Std;
+use DB_mode;
+use DB_cmd;
+use DB_device;
+use DB_iomask;
+use SYS_stdio;
+
+getopts('r');
+my $mode=shift @ARGV;
+my $cmd=shift @ARGV;
+
+my $rmod=new DB_mode($mode,"(-r) [mode] [cmd]");
+my %mpar=$rmod->getmpar;
+my $cdb=new DB_cmd($mpar{mode},"(-r) $mode [cmd]");
+my $rdb=new DB_device($mpar{dev});
+$cdb->setkey($cmd);
+my $mdb=new DB_iomask($mpar{dev});
+my $caption=uc($mode).":".$cdb->getdb("caption");
+my $data=$cdb->getdb("cmdstr");
+my $rprt=new SYS_stdio;
+print "$caption\n" unless($opt_r);
+foreach (split("&",$data)){
+    my ($str,$len)=split(/\|/);
+    my $cmdstr=$rdb->getcompstr($mdb->ioset($str));
+    if($opt_r){
+	print $cmdstr;
+    }else{
+	my $input=$mdb->input;
+	print "(INPUT=$input)\n" if($input);
+	print $rprt->visible($cmdstr);
+	print "(RSL=$len)" if($len);
+	print "\n";
+    }
+}
+1;

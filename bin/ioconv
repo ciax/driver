@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+# Last update 2004/8/4
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use DB_iomask;
+
+die "USAGE : ioconv [srm1|725|bbe|fp]\n" unless(@ARGV);
+my $rio=new DB_iomask(shift);
+my $field=4;
+while(<>){
+    chomp;
+    my @line=split(/,/);
+    if($line[$field]=~/^%/){
+	my @col=split("/",$line[$field]);
+	$line[$field]=$rio->ioset(shift @col);
+	$line[$field].="/".shift @col if(@col);
+	$line[$field].="/".$rio->ioset(shift @col) if(@col);
+    }
+    print join(",",@line) . "\n";
+}
+1;

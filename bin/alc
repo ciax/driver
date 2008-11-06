@@ -1,0 +1,4 @@
+#!/bin/bash
+
+[ "$1" ] && CMD="i:$1" || CMD="stat"
+dvcl alc $CMD

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+MYNAME=`basename $0`
+log(){
+    tee -a ~/var/log/$1.log 
+}
+cmd(){
+	NOCOLOR=1 $1 $2 2>>~/var/run/$1.err |log $1
+}
+case $1 in
+     all)
+     MODES="mma mmc mix";;
+     mos)
+     MODES="mma mmc";;
+     turret)
+     MODES="mix";;
+     mma|mmc|mix)
+     MODES=$1;;
+     *)
+     echo "Usage: $MYNAME [all|mos|turret|(mix|mma|mmc)]"
+     exit 1;;
+esac
+
+# Saving
+case $MYNAME in
+    save*)
+        for a in $MODES
+	do
+	  TEMPFILE=~/temp_$a.txt
+	  echo "`date +%Y%m%d-%H%M%S` $a upd"|log $a
+	  cmd $a upd | rsmprt > $TEMPFILE || exit 2
+	  mv $TEMPFILE ~/var/status/resume_$a.txt
+	done
+	echo Save complete!;;
+    load*)
+        for a in $MODES
+	do
+	  echo "`date +%Y%m%d-%H%M%S` $a rsm"|log $a
+	  cmd $a rsm || exit 2
+	done
+	echo Load complete!;;
+    chk*)
+        for a in $MODES
+	do
+	  echo -------- $a --------
+	  cat ~/var/status/resume_$a.txt
+	done;;
+    *);;
+esac

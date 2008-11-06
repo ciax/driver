@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use EXE_mcr;
+use Getopt::Std;
+
+getopts('en:');$|=1;
+$exe=$opt_e;
+$exe=2 if($opt_n eq "onstop");
+
+my $hostname=`hostname`;
+chomp $hostname;
+my $mref=new EXE_mcr($exe,"mcr_$hostname");
+exit $mref->setmcr(@ARGV);

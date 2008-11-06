@@ -1,0 +1,8 @@
+#!/usr/bin/ruby
+require 'mysql'
+
+o=Mysql.new('localhost','ciax','','devlog')
+res=o.query('select * from log_alk order by time desc limit 0,4')
+res.each do |row|
+  p row
+end

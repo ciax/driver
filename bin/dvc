@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+# Last update 2005/9/28 marge to det
+# 2003/8/10
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use DB_mode;
+use CTL_shared;
+
+$0=~ /\w+$/;
+my ($mode,$msg)=($&,'[cmd]');
+if($mode=~/dvc/){
+    $mode=shift || "NONE";
+    $msg='[mode] [cmd]';
+}
+my $rmod=new DB_mode($mode,$msg);
+$rmod->ishost(1);
+my $ctl=new CTL_shared($rmod->getmpar);
+print $ctl->driver(@ARGV);
+print "\n";
+$ctl->end;
+1;

@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# Last update 2003/8/11
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use SVR_shared;
+use DB_mode;
+use FSP_nt;
+
+my $initmode=substr($0,rindex($0,'/')+1,3);
+my $rmod=new DB_mode($initmode,"[cmd]");
+my %mpara=$rmod->getmpar;
+my $cdp=new FSP_nt(%mpara);
+my $srv=new SVR_shared($initmode);
+exit if($srv->server($mpara{port}));
+$cdp->init("upd");
+while(1){
+    $cdp->dispatch;
+    my $data=$srv->{udp}->rcv(0.5);
+    my $stat=$cdp->operation($data);
+    $srv->{udp}->snd($stat) if($data);
+}
+1;

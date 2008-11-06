@@ -1,0 +1,24 @@
+#!/bin/sh
+MEROPE=192.168.208.122
+ELECTRA=192.168.208.121
+ALCYONE=192.168.109.121
+LH=$LOGNAME:`hostname -i`
+
+case $LH in
+     ciax:*)
+        SRC=$ENV{HOME}
+	;;
+     moircs:*)
+        SRC=$ALCYONE:$HOME
+	;;
+     *);;
+esac      
+case $0 in
+     *get*)
+        rsync -rtuv -e ssh $SRC/drivers/* $HOME/drivers/
+	;;
+     *put*)
+        rsync -rtuv -e ssh $HOME/drivers/* $MEROPE:drivers/
+	rsync -rtuv -e ssh $HOME/drivers/* $ELECTRA:drivers/
+     ;;
+esac

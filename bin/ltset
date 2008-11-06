@@ -1,0 +1,47 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use DRV_tcp;
+use DB_device;
+use Getopt::Std;
+
+getopts('r');
+my $host=shift;
+&error unless($host);
+my @cmds=("s","su","system");
+unless($opt_r){
+    my $cfg=new SYS_file("cfg_lantro.txt","c");
+    my %parity=("N"=>"none","E"=>"even","O"=>"odd");
+    my @line=grep(/$host/,$cfg->red);
+    foreach(@line){
+	my($host,$port,$rsname)=split(',');
+	my $rdb=new DB_device($rsname);
+	my $defp="define port $port";
+	foreach($rdb->getlantropars){
+	    push @cmds,"$defp $_";
+	}
+	my $defs="define service rs_$port";
+	my $tcpport=4000+$port;
+	push @cmds,"$defs tcpport $tcpport";
+	push @cmds,"$defs binary en";
+	push @cmds,"$defs port $port en";
+	push @cmds,"$defp dedicated service rs_$port";
+    }
+}
+push @cmds,"initialize server delay 0";
+push @cmds,"logout";
+
+$tcp=new DRV_tcp("$host:23");
+$tcp->open;
+foreach (@cmds){
+    print $tcp->rcv;
+    $tcp->snd("$_\n");
+}
+$tcp->close;
+
+sub error{
+    die("Usage:ltset (-r) [hostname]\n");
+}

@@ -1,0 +1,8 @@
+dist=/home/moircs/drivers/config
+for a ; do
+[ -f $dist/$a ] || continue
+diff $dist/$a $a && continue
+read -p COPY? Y
+[ "$Y" = y ] && 
+cp -a $dist/$a $a && echo COPYED!
+done

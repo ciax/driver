@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+#Last 2008/7/30 Check Process existent
+my $cmd=shift @ARGV;
+die("No process name!\n") unless($cmd);
+my @remain=();
+my $path="$ENV{DRVVAR}/run/$cmd.pid";
+die(&color("$cmd.pid does not exist%1")) unless(-e $path);
+my @pids=`grep [0-9] $path`;
+die(&color("No process in $cmd.pid%1")) if(@pids<1);
+unlink $path;
+foreach(@pids){
+    chomp;
+    if(not -d "/proc/$_" ){
+	print &color("NO SUCH PROCESS PID=$_%1");
+    }elsif(kill 15,$_){
+	print &color("TERMINATED PID=$_%4"); 
+    }elsif(kill 9,$_){
+	print &color("KILLED PID=$_%1");
+    }else{
+	print &color("CANT KILL PID=$_%1");
+	`echo "$_">>$path`
+    }
+}
+
+# 1=RED,2=GREEN,4=BLUE,9=LIGHT RED,A=LIGHT GREEN,C=LIGHT BLUE
+sub color($){
+    my($data)=@_;
+    my ($str,$color)=split(/%/,$data);
+    return $data if(length($color)>1);
+    return $str unless($color);
+    my $num=hex($color);
+    my $msb=($num & 8)?0:1;
+    my $col=$num & 7;
+    return "\033[$msb;3$col"."m$str\033[0m\n";
+}
+1;

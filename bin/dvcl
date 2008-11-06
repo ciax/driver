@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+# Last update 2003/8/10
+BEGIN{
+    $ENV{HOME}="/home/ciax" unless($ENV{HOME});
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+#$SIG{INT}=\&stopcmd;
+use DB_mode;
+use CLI_cmd;
+
+my ($mode,$cmd,$nowait)=@ARGV;
+my $rmod=new DB_mode($mode,'[mode] [cmd] (nowait)');
+my $rcom=new CLI_cmd($rmod->getmpar,usage=>"$mode [cmd] (nowait)");
+my $stat=$rcom->setcmd($cmd,!$nowait);
+print "$stat\n";
+1;

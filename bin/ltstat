@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use DRV_tcp;
+use SYS_file;
+
+my $host=shift;
+&error unless($host);
+my $cfg=new SYS_file("cfg_lantro.txt","c");
+&error unless(grep(/$host/,$cfg->red));
+my $port=shift;
+my @cmds=("s");
+if($port=~ /[0-9]/){
+    push @cmds,"show port $port" ;
+}else{
+    push @cmds,"show services chara";
+}
+push @cmds,"logout";
+
+$tcp=new DRV_tcp("$host:23");
+$tcp->open;
+foreach (@cmds){
+    print $tcp->rcv;
+    $tcp->snd("$_\n");
+}
+$tcp->close;
+print "\n";
+
+sub error{
+   die("Usage:ltstat [hostname] <port>\n");
+}

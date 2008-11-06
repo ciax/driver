@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib";
+}
+use SYS_file;
+
+my $file=shift;
+&error unless($file);
+$line=shift;
+$line=10 unless($line);
+
+$fi=new SYS_file($file);
+@data=$fi->tail($line);
+
+print "$_\n" foreach(@data);
+
+sub error{
+    die("Usage:tai [filename] [line]\n");
+}

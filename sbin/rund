@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+# Last update: 2007/2/3 Reorganization output format
+#  2006/12/21 All output -> STDERR, use daemon
+#  2005/6/10
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use SVR_shared;
+use DB_shared;
+
+#die("Not Valid User!\n") if($ENV{USER} !~ /ciax/);
+$ENV{MODE}="rund";
+my %pids=();
+my @links=();
+my $myhost=`hostname`;
+chomp $myhost;
+my $rmod=new DB_shared("db_mode*$ENV{PROJECT}.txt");
+my @ids=$rmod->sqlsel("!key","host",$myhost);
+my $svr=new SVR_shared;
+$svr->daemon("rund.err");
+&runc($_) foreach(@ids);
+$SIG{TERM}=\&end;
+# Persistent process generator
+while(1){
+    my $dpid=wait;
+    next if($dpid <0);
+    $svr->{rver}->warning("Exit $pids{$dpid} ($dpid) Code=$?");
+    next if($? == 0);
+    sleep 3;
+    &runc($pids{$dpid});
+    delete $pids{$dpid};
+}
+
+sub runc($){
+    my ($mod)=@_;
+    return unless($mod);
+    my $dmon="$ENV{DRVDIR}/sbin/${mod}d";
+    unless( -e $dmon ){
+	$dmon="$ENV{DRVVAR}/run/${mod}d";
+	symlink "$ENV{DRVDIR}/sbin/dvcd",$dmon;
+	push @links,$dmon;
+    }
+    return unless(-x $dmon);
+    $dmon="sudo $dmon" if($rmod->getdb("ctype",$mod) =~ /pio/);
+    my $cpid=$svr->cexec($dmon,"${mod}d.err");
+    $pids{$cpid}=$mod;
+}	    
+
+sub end{
+    system("sudo kill $_") foreach(keys %pids);
+    unlink $_ foreach(@links);
+    exit;
+}
+1;

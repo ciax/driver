@@ -1,0 +1,4 @@
+chmod 777 *
+rm *~ *.unx *.nt ready* &> /dev/null
+ls -aF 
+

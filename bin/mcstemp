@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+my $mcs="/home/ciax/drivers/bin/alcyone mcsStatClnt -L TEMPERATURE";
+my $arg=shift;
+my $mode="mlk$arg";
+my @ele=`$mcs $arg`;
+map(tr/\n\r://d,@ele);
+my @title=split(/ +/,$ele[-2]);
+shift @title;
+my $str=shift @title;
+my @record=split(/,/,$ele[-1]);
+my $date=substr(shift @record,2);
+$date=~ tr/-//d;
+$date=~ tr/ /-/d;
+@ele=('"'.$str.'":"'.$date.'"');
+push @ele,'"mode":"'.$mode.'"';
+foreach(@title){
+    my $val=shift @record;
+    push @ele,sprintf('"%s":"%.2f"',$_,$val);
+}
+print "{ ".join(",",@ele)." }\n";

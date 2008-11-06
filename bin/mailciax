@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+# Last update 2008/1/28 : Correct subject handling 
+# 2003/9/30
+BEGIN{
+    $ENV{PATH}="$ENV{HOME}/share/bin:/usr/local/bin:/usr/bin:/bin";
+    $0=~ s/.*\///;
+    chdir($&);
+}
+use strict;
+
+my @str=<>;
+if(grep(/[\w]/,@str)){
+    &send(@str);
+    print foreach (@str);
+}else{
+    warn("No mail\n");
+}
+
+sub send(@){
+    my $mail='omata@naoj.org';
+    open(MAIL, "|mail -s 'CIAX Alarm' $mail") or die("Can't send mail!");
+    print(MAIL @_);
+    close(MAIL);
+    warn("Mail was sent to $mail\n");
+}
+1;

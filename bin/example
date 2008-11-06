@@ -1,0 +1,6 @@
+#getcmd hoj upd|append srm1|rs srm1|strconv srm1|visi
+#getcmd det upd|append srm1|tcp lantro-c:4001|strconv srm1|visi
+#getcmd cho upd|append omg|tcp lantro-o:4005|strconv omg|visi
+#getcmd cfo upd|append k3n|tcp lantro-o:4001|strconv k3n|visi
+#getcmd mfp upd|append fp|tcp celaeno:4001|strconv fp|visi
+getcmd cro upd|append bbe|tcp lantro-o:4010|strconv bbe|visi

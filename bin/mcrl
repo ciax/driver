@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+# Last update 2002/7/26
+BEGIN{
+    $ENV{DRVDIR}="$ENV{HOME}/drivers" unless($ENV{DRVDIR});
+    $ENV{DRVVAR}="$ENV{HOME}/var" unless($ENV{DRVVAR});
+    push @INC,"$ENV{DRVDIR}/lib"; 
+}
+use CLI_mcr;
+use Getopt::Std;
+
+getopts('v');
+my $cmd=shift;
+my $rcom=new CLI_mcr($opt_v);
+$rcom->setcmd($cmd);
+1;
