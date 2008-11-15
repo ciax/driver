@@ -92,16 +92,23 @@ sub getcompstr($$){
 	foreach (keys %bin){
 	    $affix=~ s/$_/$bin{$_}/g;
 	}
-	my ($pre,$del,$chk,$exp)=split(/:/,$affix);
+	my ($pre,$del,$chk,$exp,$pos)=split(/:/,$affix);
 	if($chk){
 	    my $chknum="";
 	    if($chk =~ /bcc/){
 		$chknum ^= $_ foreach(unpack("C*",$str));
 	    }elsif($chk =~ /sum/){
 		$chknum=unpack("%8C*",$str);
+	    }elsif($chk =~ /len/){
+		$chknum=length($str);
 	    }
-	    $exp=~ /[1-9]/;
-	    $str.=substr(sprintf($exp,$chknum),-$&);
+	    my $chr=sprintf($exp,$chknum);
+	    if($pos =~ /P/){
+		$str=$chr.$str;
+	    }else{
+		$exp=~ /[1-9]/;
+		$str.=substr($chr,-$&);
+	    }
 	}
 	$str=$pre.$str.$del;
     }
@@ -118,7 +125,11 @@ sub convert($$){
 	return;
     }
     if($offset =~ /\d/){
-	$data=substr($data,$offset,$length); 
+	if($length =~ /\d/){
+	    $data=substr($data,$offset,$length);
+	}else{
+	    $data=substr($data,$offset);
+	}
 	$this->{rver}->statprt("STAT_SUBSTR=[$data]");
     }
     if($rev){
