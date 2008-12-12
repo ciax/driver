@@ -33,6 +33,7 @@ sub snd($$){
     select(undef,$bits,undef,2);
     if(vec($bits,fileno($S),1)){
 	$this->{rver}->statprt("CL:send $str");
+	$this->{rver}->statprt("CL:length ".length($str));
 	send($S,$str,0,$this->{ent}) or return;
 	$this->{rver}->statprt("CL:send done");
 	return 1;
@@ -51,6 +52,7 @@ sub rcv($$){
 	$this->{rver}->statprt("CL:recv ready");
 	recv($S,$stat,1000,0);
 	$this->{rver}->statprt("CL:recv ".substr($stat,0,20));
+	$this->{rver}->statprt("CL:length ".length($stat));
     }
     return $stat;
 }
