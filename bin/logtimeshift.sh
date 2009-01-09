@@ -7,6 +7,7 @@ echo "DIFF = $diff sec"
 temp=".tmp$(date +%s).log"
 for file ; do
     IFS=$'\n'
+    begin=""
     for l in $(< $file); do
 	old="${l:0:6} ${l:7:2}:${l:9:2}:${l:11:2}"
 	new=$(date -d "$old $diff second ago" +%y%m%d-%H%M%S)
