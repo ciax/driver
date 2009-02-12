@@ -1,0 +1,13 @@
+syntax: glob
+*~
+*.o
+*.class
+*.orig
+
+sytax: re
+^CVS/
+/CVS/
+^\.svn/
+/\.snv/
+config/
+dmydata/
