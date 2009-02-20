@@ -42,12 +42,12 @@ sub snd($$){
 }
 
 sub rcv($$){
-    my ($this,$timeout)=@_;
+    my ($this)=@_;
     return if($this->{rver}->istest("CL:recv(test)"));
     my ($stat)=();
     my $bits=$this->{bits};
     my $S=$this->{hdl};
-    select($bits,undef,undef,$timeout);
+    select($bits,undef,undef,2);
     if(vec($bits,fileno($S),1)){
 	$this->{rver}->statprt("CL:recv ready");
 	recv($S,$stat,1000,0);

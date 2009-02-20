@@ -11,6 +11,7 @@ use SYS_stdio;
 sub new($$$){
     my($pkg,$file,$usage)=@_;
     my $this={usage=>$usage};
+    $file=~s/mcr/mcr-$ENV{PROJECT}/g;
     my $rf=new SYS_file($file,"c");
     my @lines=grep(!/^$/,$rf->red); 
     @{$this->{index}}=("!key");

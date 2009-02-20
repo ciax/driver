@@ -21,16 +21,16 @@ use MTN_log;
 sub new($$$){
     my($pkg,$exe,$loghead)=@_;
     my $this={test=>(!$exe),nst=>($exe>1),err=>""};
-    my $usage="[-e] [cmd1] [cmd2]..[cmdN]";
+    my $usage="[-e] [cmd1] [cmd2]..[cmdN] ($ENV{PROJECT})";
     $this->{rmod}=new DB_mode("mcr",$usage);
     my %mpar=$this->{rmod}->getmpar;
     $this->{port}=$mpar{port};
-    $this->{rmcr}=new DB_shared("cdb_{000,mcr*$ENV{PROJECT}}.txt",$this->{rmod}{usage});
+    $this->{rmcr}=new DB_shared("cdb_{000,mcr}.txt",$this->{rmod}{usage});
     $this->{rst}=new CLI_stat;
     $this->{rilk}=new EXE_ilk($this->{rst});
     $this->{rlog}=new MTN_log($loghead,$this->{test});
     $this->{rprt}=new SYS_stdio;
-    $this->{rmcv}=new DB_shared("db_mcv*$ENV{PROJECT}.txt");
+    $this->{rmcv}=new DB_shared("db_mcv-$ENV{PROJECT}.txt");
     bless $this;
 }
 
