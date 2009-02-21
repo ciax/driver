@@ -1,0 +1,43 @@
+#!/bin/bash
+[ "$1" ] || { echo -e "Usage ${0##*/} [run1-12|lftup1-3|lftdw|reset]"; exit 1; }
+#!/bin/bash
+
+wait_en(){
+    until dvcl dct upd|stprt -r|grep -q "en=$1" ; do
+	echo -n "."
+	sleep 1
+    done
+    echo
+}
+
+echo -n "WAIT READY"
+wait_en 1
+
+echo "SET $1"
+dvcl dct $1
+sleep 1
+
+case $1 in
+    run*)
+	echo "START RUN"
+	dvcl dct run
+	wait_en 0
+	;;
+    lft*)
+	echo "START JAK"
+	dvcl dct jak
+	wait_en 0
+	;;
+    reset*)
+	echo "RESET ACT"
+	dvcl dct reset
+	;;
+    *)
+	exit;;
+esac
+
+echo "Stop for Ctrl-C"
+trap "dvcl dct stop;exit" INT
+wait_en 1
+echo "Finish"
+
