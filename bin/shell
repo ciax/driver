@@ -11,7 +11,7 @@ use DB_mode;
 use DB_stat;
 use CLI_cmd;
 
-my %pstat=(ciax=>"ist:icr:hom");
+my %pstat=(ciax=>"ist:icr:hom",cx09=>"ist:icr:hom");
 print("Device Control shell program\n");
 my $rmod=new DB_mode;
 my $rprt=new SYS_stdio;
