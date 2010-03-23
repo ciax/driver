@@ -7,11 +7,8 @@ use strict;
 
 sub init($){
     my($this)=@_;
-    $ENV{OSS_SYSTEM}="/app/OSS/GLOBAL_DEBUG/OSS_SYSTEM";
-    $ENV{OSSL_LOG}="/app/oss_data/OBS_NFS";
-    $ENV{OSS_CMDPATH}="/app/LOAD/DEBUG";
-    $ENV{OSS_OBS_HOST}="cxws";
-    $ENV{PATH}="$ENV{OSS_SYSTEM}:$ENV{OSS_CMDPATH}:$ENV{PATH}";
+    $ENV{PYTHONPATH}="$ENV{HOME}/python";
+    $ENV{PATH}="$ENV{HOME}/bin:$ENV{PATH}";
     $this->{rver}=new MTN_ver("TSC%9","tsc");
     $this->{err}=0;
     my $fsp=new SYS_file("cfg_tscst.txt","c");
@@ -29,10 +26,10 @@ sub drvctl($$){
     my $cmd="";
     if($str =~ /^CMD/){
 	my($dmy,$timeout,$num)=split(":",$str);
-	$cmd="cccccc$num";
+	$cmd="$num";
 	$cmd = '"'.$cmd.'"';
 	$cmd ="'"."EXEC TSC NATIVE CMD=$cmd"."'";
-	$cmd ="OSST_ciaxTSCcommand $timeout $cmd";
+	$cmd ="OSST_ciaxTSCcommand $cmd $timeout";
     }else{
 	$cmd="OSST_ciax$str";
     }
