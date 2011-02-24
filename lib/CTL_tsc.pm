@@ -7,16 +7,16 @@ use strict;
 
 sub init($){
     my($this)=@_;
-    $ENV{PYTHONPATH}="$ENV{HOME}/python";
+    $ENV{PYTHONPATH}="$ENV{HOME}/gen2/share/Svn/python";
     $ENV{PATH}="$ENV{HOME}/bin:$ENV{PATH}";
     $this->{rver}=new MTN_ver("TSC%9","tsc");
     $this->{err}=0;
     my $fsp=new SYS_file("cfg_tscst.txt","c");
     my $ucmd="";
     foreach($fsp->red){
-	my ($str,$byte)=split(",");
-	$ucmd.=$str." ";
-	push @{$this->{bts}},$byte;
+        my ($str,$byte)=split(",");
+        $ucmd.=$str." ";
+        push @{$this->{bts}},$byte;
     }
     $this->{ucmd}="OSSC_screenPrint -R ".$ucmd;
 }
