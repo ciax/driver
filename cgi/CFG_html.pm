@@ -17,7 +17,7 @@ sub cgi_header($$$){
   $str .= $title;
   $str .= "</TITLE>\n";
   $str .="<META HTTP-EQUIV=REFRESH CONTENT=$pull>\n" if($pull);
-  $str .="</HEAD>\n<BODY BGCOLOR=#DDDDDD TEXT=#0000FF><CENTER>\n";
+  $str .="</HEAD>\n<BODY BGCOLOR=#888888 TEXT=#00FFFF><CENTER>\n";
   return $str;
 }
 
@@ -83,7 +83,7 @@ sub color($$$){
     my ($str,$color)=split(/%/,$data);
     return $str unless($color);
     my $num=hex($color);
-    my $chr="77";
+    my $chr="FF";
 #    my $chr=($num & 8)?"44":"88";
     my $red=($num & 1)?$chr:"00";
     my $green=($num & 2)?$chr:"00";
