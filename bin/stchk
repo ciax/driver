@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MODES="dct nso nsi dxo dxi det dts cci cco"
+MODES="dct dso dsi det dts cci cco"
 TEMP1=temp1.txt
 TEMP2=temp2.txt
 
