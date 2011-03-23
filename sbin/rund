@@ -17,7 +17,7 @@ my @links=();
 my $myhost=`hostname`;
 chomp $myhost;
 my $rmod=new DB_shared("db_mode*$ENV{PROJECT}.txt");
-my @ids=$rmod->sqlsel("!key","host",$myhost);
+my @ids=$rmod->sqlsel("!key,inv","host",$myhost);
 my $svr=new SVR_shared;
 $svr->daemon("rund.err");
 &runc($_) foreach(@ids);
@@ -34,8 +34,9 @@ while(1){
 }
 
 sub runc($){
-    my ($mod)=@_;
+    my ($mod,$inv)=split(/,/,$_[0]);
     return unless($mod);
+    return if($inv);
     my $dmon="$ENV{DRVDIR}/sbin/${mod}d";
     unless( -e $dmon ){
 	$dmon="$ENV{DRVVAR}/run/${mod}d";
