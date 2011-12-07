@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MODES="dct dso dsi det dts cci cco"
+MODES="crt dso dsi det dts cci cco"
 TEMP1=temp1.txt
 TEMP2=temp2.txt
 
@@ -16,8 +16,8 @@ for i in $MODES ; do
     pick cme=E && echo "Comm error on $i!"
     pick dve=E && echo "Device error on $i!"
     if [ "$i" = "nct" ] ; then
-	! { pick blv=H || pick blv=M ;} &&
-	echo "CIAX Cart Battery level is Low! (`grep blv $TEMP2`)"
+        ! { pick blv=H || pick blv=M ;} &&
+        echo "CIAX Cart Battery level is Low! (`grep blv $TEMP2`)"
     fi
 done
 rm $TEMP1 $TEMP2
