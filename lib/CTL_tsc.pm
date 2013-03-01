@@ -52,6 +52,7 @@ sub getstat($){
     foreach (@st){
 	chomp;
 	my $byte=shift @bts;
+        tr/\000/0/;
 	$stat.=substr($_,0,$byte);
     }    
     $this->{rver}->statprt("STOUT:$stat");
