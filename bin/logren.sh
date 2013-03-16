@@ -7,17 +7,16 @@ for fname ; do
     end=${tail%%-*}
     d1=${tail#* };d2=${d1#%}
     if [ $begin = $end ] ; then
-	date="$begin"
+        date="$begin"
     else
-	date="$begin-$end"
+        date="$begin-$end"
     fi
     mode=${d2:0:3}
     [ "$mode" = "###" ] && mode=${head:19:3}
     newname="$mode-$date.log"
     if [ -f "$newname" ] ; then
-	cmp -s $fname $newname || echo "$newname exists"
+        cmp -s $fname $newname || echo "$newname exists"
     else
-	ft.sh -r $fname $newname
-	echo "$fname ==> $newname"
+        mv $fname $newname && echo "$fname ==> $newname"
     fi
 done

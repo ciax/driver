@@ -19,7 +19,8 @@ if [ -e $arcdir$tgzfile ] ; then
     read repl
     [ "$repl" = "y" ] || { rm $tgzfile ; warn "$tgzfile was removed"; }
 fi
-[ -e $tgzfile ] && { mv $tgzfile $arcdir ; warn "$tgzfile was moved to $arcdir"; }
+[ -e $tgzfile ] && { tar tvzf $tgzfile ; mv $tgzfile $arcdir ; warn "$tgzfile was moved to $arcdir"; }
+
 warn "rm logs?"
 read repl
-[ "$repl" = "y" ] && { ft.sh -d $logfile && warn "logfiles were removed"; }
+[ "$repl" = "y" ] && { mv $logfile ~/.trash && warn "logfiles were removed"; }
