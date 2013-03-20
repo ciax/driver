@@ -25,13 +25,13 @@ sub drvctl($$){
     my($this,$str)=@_;
     my $cmd="";
     if($str =~ /^CMD/){
-	my($dmy,$timeout,$num)=split(":",$str);
-	$cmd="$num";
-	$cmd = '"'.$cmd.'"';
-	$cmd ="'"."EXEC TSC NATIVE CMD=$cmd"."'";
-	$cmd ="OSST_ciaxTSCcommand $cmd $timeout";
+        my($dmy,$timeout,$num)=split(":",$str);
+        $cmd="$num";
+        $cmd = '"'.$cmd.'"';
+        $cmd ="'"."EXEC TSC NATIVE CMD=$cmd"."'";
+        $cmd ="OSST_ciaxTSCcommand $cmd $timeout";
     }else{
-	$cmd="OSST_ciax$str";
+        $cmd="OSST_ciax$str";
     }
     $this->{rver}->statprt("EXEC:$cmd");
     `$cmd`;
@@ -50,11 +50,12 @@ sub getstat($){
     my @st=`$cmd`;
     my @bts=@{$this->{bts}};
     foreach (@st){
-	chomp;
-	my $byte=shift @bts;
+        chomp;
+        my $byte=shift @bts;
         tr/\000/0/;
-	$stat.=substr($_,0,$byte);
-    }    
+        my $ele=substr($_,0,$byte);
+        $stat.=sprintf("%0${byte}s",$ele)
+    }
     $this->{rver}->statprt("STOUT:$stat");
     return $stat;
 }
