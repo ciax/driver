@@ -45,16 +45,21 @@ sub _condition_and($$){
     my($this,$cond)=@_;
     my ($tf,@rem)=("OK");
     if($cond){
-	foreach (split('&',$cond)){
-	    next if(/^!/);
-	    my ($flg,$def,$val)=$this->_chkstat($_);
-	    if($flg){
-		push @rem,"OK <$def>%2"; 	
-	    }else{
-		$tf="NG";
-		push @rem,"NG <$def but $val>%1";
-	    }
-	}
+        foreach (split('&',$cond)){
+            if(/(^|:)!/){
+                my $key=$_;
+                ($this->{cmode},$key)=split(':') if(/:/);
+                push @rem,"Temporary Ignore <$this->{cmode}:$key>%4";
+                next;
+            };
+            my ($flg,$def,$val)=$this->_chkstat($_);
+            if($flg){
+                push @rem,"OK <$def>%2";
+            }else{
+                $tf="NG";
+                push @rem,"NG <$def but $val>%1";
+            }
+        }
     }
     return ($tf,@rem);
 }
