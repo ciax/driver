@@ -31,6 +31,7 @@ sub new($$$){
     $this->{rlog}=new MTN_log($loghead,$this->{test});
     $this->{rprt}=new SYS_stdio;
     $this->{rmcv}=new DB_shared("db_mcv-$ENV{PROJECT}.txt");
+    $this->{line}=0;
     bless $this;
 }
 
@@ -204,10 +205,10 @@ sub input($$){
 sub prt($$$){
     my($this,$str,$nocr)=@_;
     return unless($str);
-    $str=" " x ($this->{col}*2).$str;
-    print $this->{rprt}->color($str);
+    $this->{line}++;
+    my $pre="[".$this->{line}."]"." " x ($this->{col}*2);
+    print $pre.$this->{rprt}->color($str);
     print "\n" unless($str =~ /\?/ or $nocr);
-    $str=~s/%[0-9A-D]$//;
-    $this->{rlog}->rec($str) unless($this->{test});
+    $this->{rlog}->rec($pre.$str) unless($this->{test});
 }
 1;
