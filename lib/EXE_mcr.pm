@@ -184,6 +184,7 @@ sub convert($$){
 	    $sym=lc($sym);
 	    $cmd =~ s/%$_/$sym/g;
 	}
+    $this->prt("Error Convert failed($cmd) !%1") if($cmd =~ /%/);
     }
     return $cmd;
 }
