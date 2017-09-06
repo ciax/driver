@@ -39,7 +39,8 @@ sub drvctl($$){
 	my ($ct,$ins,$fl)=split(/:/,$line);
 	$crnt=$ins;
 	$home=$sym;
-    }elsif($ofile =~ /setJak/){
+    }
+    if($ofile =~ /setJak/){
         my ($dmy,$sym)=split(/[_\.]/,$ofile);
 	$i{$sym}=$inst;
 	$home=$sym;
